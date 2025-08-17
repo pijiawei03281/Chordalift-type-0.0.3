@@ -9,15 +9,20 @@ files:
   - "preload.cjs"
   - "!**/*.map"
 win:
-  - target: nsis
-      arch: x64
+  target:
+    - target: nsis
+      arch:
+        - x64
     - target: portable
-      arch: x64
+      arch:
+        - x64
   icon: app-icon.ico
-artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
+
 nsis:
   oneClick: true
   perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
   artifactName: Chordalift-${version}-win-${arch}-nsis.exe
 
 portable:
