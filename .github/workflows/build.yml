@@ -19,7 +19,7 @@ jobs:
         run: npm install
 
       - name: Build (NSIS + Portable)
-        run: npx electron-builder --win nsis portable
+        run: npx electron-builder --win nsis portable --publish never
 
       - name: Make SHA256SUMS.txt
         shell: pwsh
