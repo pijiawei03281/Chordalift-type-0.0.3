@@ -1,0 +1,36 @@
+name: Build Windows (Manual)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm install
+
+      - name: Build (NSIS + Portable)
+        run: npx electron-builder --win nsis portable
+
+      - name: Make SHA256SUMS.txt
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path build_out | Out-Null
+          Get-ChildItem build_out\* -File | ForEach-Object {
+            (Get-FileHash $_.FullName -Algorithm SHA256).Hash + "  " + $_.Name
+          } | Out-File build_out\SHA256SUMS.txt -Encoding ascii
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chordalift-win
+          path: build_out/**
