@@ -1,0 +1,31 @@
+:root{
+  --bg:#0b1020; --panel:#121a33; --text:#eaf0ff; --muted:#a8b8ff; --line:#273157;
+  --ok:#2ecc71; --warn:#f39c12; --danger:#e74c3c;
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{margin:0;background:linear-gradient(180deg,#0a0f1f 0,#0e1430 100%);color:var(--text);
+  font-family: ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans',sans-serif;}
+.wrap{max-width:1080px;margin:0 auto;padding:20px}
+.h1{font-weight:800;letter-spacing:.3px;font-size:22px;margin:0 0 8px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0;
+  box-shadow:0 6px 24px rgba(0,0,0,.35);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+select,input[type=range],input[type=number],input[type=text]{width:100%;padding:10px 12px;background:#0c142b;color:var(--text);
+  border:1px solid var(--line);border-radius:10px;outline:none}
+button{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#0e1733;color:var(--text);cursor:pointer}
+button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.25)}
+button.danger{background:#2a0f12;border-color:#56222a}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:#1a244a;color:#cfe0ff}
+.pill-ok{background:#10331f;color:#baf3d0;border-color:#1d5a33}
+.pill-warn{background:#352607;color:#ffd59e;border-color:#654e1a}
+.small{font-size:12px;color:var(--muted)}
+.monitor{min-height:130px;max-height:260px;overflow:auto;border:1px dashed var(--line);border-radius:12px;padding:8px;background:#0b1226}
+.monitor .line{padding:4px 6px;border-bottom:1px dashed #1a244a;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+.monitor .line:nth-child(odd){background:#0d1530}
+.right{margin-left:auto}
+hr.sep{border:none;border-top:1px dashed var(--line);margin:8px 0}
+.w100{width:100%}

@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Chordalift — Control Hub (v0.1.3 Drop 1)</title>
+<style>
+:root{--bg:#0b1020;--panel:#121a33;--ink:#e1e2e2;--muted:#a4a4a4;--brand:#3a70ba;--line:#273157}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:SimHei,"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif}
+.wrap{max-width:1180px;margin:24px auto;padding:0 20px}
+h1{font-size:26px;margin:10px 0 14px 0}
+.badge{font-size:12px;border:1px solid #3a70ba;border-radius:999px;padding:3px 8px;margin-left:8px;color:#8badd6}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
+label{font-size:13px;color:var(--muted)}
+select,input,button{background:#0f1630;border:1px solid #1e2a52;color:var(--ink);border-radius:10px;padding:8px 10px}
+button.brand{background:var(--brand);border-color:#365d91}
+.sp{flex:1}
+.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace}
+.monitor{height:170px;overflow:auto;background:#0f1630;border:1px solid #1e2a52;border-radius:12px;padding:10px}
+.hint{color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.toast{display:none;margin-left:8px;padding:4px 8px;border-radius:8px}
+.ok{color:#6fe3a3}.warn{color:#f5b041}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chordalift — Control Hub <span class="badge">v0.1.3</span><span class="badge">Drop 1</span></h1>
+
+  <!-- A/B Layers -->
+  <div class="card">
+    <h3 style="margin:0 0 8px 0">Layers（A / B）— Key/Scale / Mode / PB 範圍 / Tuning</h3>
+    <div class="grid">
+
+      <!-- Layer A -->
+      <div>
+        <h4 style="margin:6px 0">Layer A</h4>
+        <div class="row">
+          <label>Key</label>
+          <select id="A_key">
+            <option>C</option><option>C#</option><option>D</option><option>D#</option>
+            <option>E</option><option>F</option><option>F#</option><option>G</option>
+            <option>G#</option><option>A</option><option>A#</option><option>B</option>
+          </select>
+          <label>Scale</label>
+          <select id="A_scale">
+            <option>Major</option><option>Minor</option><option>Dorian</option>
+            <option>Phrygian</option><option>Lydian</option><option>Mixolydian</option>
+            <option>Locrian</option><option>Pentatonic Major</option><option>Pentatonic Minor</option>
+            <option>Blues</option>
+          </select>
+          <label><input type="checkbox" id="A_enabled" checked> 啟用</label>
+        </div>
+        <div class="row">
+          <label>模式</label>
+          <select id="A_mode">
+            <option value="retune">Retune（單音 PB）</option>
+            <option value="mpe">MPE（每音 PB）</option>
+          </select>
+          <label>PB ±</label>
+          <input id="A_pbRet" type="number" min="1" max="48" value="2" style="width:80px"/> <span class="hint">（Retune）</span>
+          <input id="A_pbMpe" type="number" min="2" max="96" value="48" style="width:80px"/> <span class="hint">（MPE）</span>
+        </div>
+        <div class="row">
+          <input type="file" id="A_scl" accept=".scl" style="display:none"/>
+          <input type="file" id="A_kbm" accept=".kbm" style="display:none"/>
+          <button id="A_btnScl">載入 .scl</button>
+          <button id="A_btnKbm">載入 .kbm</button>
+          <button id="A_btnSaveTuning">保存 Scale JSON</button>
+          <button id="A_apply" class="brand">套用 A</button>
+          <span id="A_toast" class="toast">&nbsp;</span>
+        </div>
+        <div class="hint">若 .scl 非 12 步，先近似映射到 12 級；之後會加入完整 N-EDO 對應。</div>
+      </div>
+
+      <!-- Layer B -->
+      <div>
+        <h4 style="margin:6px 0">Layer B</h4>
+        <div class="row">
+          <label>Key</label>
+          <select id="B_key">
+            <option>C</option><option>C#</option><option>D</option><option>D#</option>
+            <option>E</option><option>F</option><option>F#</option><option>G</option>
+            <option>G#</option><option>A</option><option>A#</option><option>B</option>
+          </select>
+          <label>Scale</label>
+          <select id="B_scale">
+            <option>Major</option><option>Minor</option><option>Dorian</option>
+            <option>Phrygian</option><option>Lydian</option><option>Mixolydian</option>
+            <option>Locrian</option><option>Pentatonic Major</option><option>Pentatonic Minor</option>
+            <option>Blues</option>
+          </select>
+          <label><input type="checkbox" id="B_enabled" checked> 啟用</label>
+        </div>
+        <div class="row">
+          <label>模式</label>
+          <select id="B_mode">
+            <option value="retune">Retune（單音 PB）</option>
+            <option value="mpe">MPE（每音 PB）</option>
+          </select>
+          <label>PB ±</label>
+          <input id="B_pbRet" type="number" min="1" max="48" value="2" style="width:80px"/> <span class="hint">（Retune）</span>
+          <input id="B_pbMpe" type="number" min="2" max="96" value="48" style="width:80px"/> <span class="hint">（MPE）</span>
+        </div>
+        <div class="row">
+          <input type="file" id="B_scl" accept=".scl" style="display:none"/>
+          <input type="file" id="B_kbm" accept=".kbm" style="display:none"/>
+          <button id="B_btnScl">載入 .scl</button>
+          <button id="B_btnKbm">載入 .kbm</button>
+          <button id="B_btnSaveTuning">保存 Scale JSON</button>
+          <button id="B_apply" class="brand">套用 B</button>
+          <span id="B_toast" class="toast">&nbsp;</span>
+        </div>
+        <div class="hint">若 .scl 非 12 步，先近似映射到 12 級；之後會加入完整 N-EDO 對應。</div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <label>規則：力度閾值（≥ 視為 Melody）</label><input id="ruleVel" type="number" min="1" max="127" value="96" style="width:90px"/>
+      <label>低頻分割（Bass ≤）</label><input id="ruleLow" type="number" min="0" max="127" value="52" style="width:90px"/>
+      <label>高頻分割（Melody ≥）</label><input id="ruleHigh" type="number" min="0" max="127" value="60" style="width:90px"/>
+      <button id="rules_apply">套用規則</button>
+      <span class="hint">分派：Bass / Chord-Melody（鼓分派將於下版加 GM Map）</span>
+    </div>
+  </div>
+
+  <!-- MIDI IO + Monitor（沿用簡化） -->
+  <div class="card">
+    <div class="row">
+      <label>輸入裝置</label><select id="inSel" class="sp"></select>
+      <label>輸出裝置</label><select id="outSel" class="sp"></select>
+      <label><input type="checkbox" id="thru" checked> 啟用轉接</label>
+      <button id="btnRescan">重新掃描</button>
+      <button id="btnPanic">Panic</button>
+    </div>
+    <div id="log" class="monitor mono"></div>
+  </div>
+
+  <!-- 維護工具 -->
+  <div class="card">
+    <h3 style="margin:0 0 8px 0">維護工具</h3>
+    <div class="row">
+      <button id="btnOpenLog">開啟記錄檔資料夾</button>
+      <button id="btnTruncLog">清空日誌</button>
+      <button id="btnClearCache">清除快取</button>
+      <button id="btnFactoryReset" style="margin-left:auto">Reset to Factory</button>
+    </div>
+    <div class="hint">Reset 僅清除設定與快取，不會動到你匯出的 JSON / MIDI 檔。</div>
+  </div>
+</div>
+
+<script type="module">
+const KEY2PC = {"C":0,"C#":1,"D":2,"D#":3,"E":4,"F":5,"F#":6,"G":7,"G#":8,"A":9,"A#":10,"B":11};
+const SCALES = {
+  "Major":[0,2,4,5,7,9,11],
+  "Minor":[0,2,3,5,7,8,10],
+  "Dorian":[0,2,3,5,7,9,10],
+  "Phrygian":[0,1,3,5,7,8,10],
+  "Lydian":[0,2,4,6,7,9,11],
+  "Mixolydian":[0,2,4,5,7,9,10],
+  "Locrian":[0,1,3,5,6,8,10],
+  "Pentatonic Major":[0,2,4,7,9],
+  "Pentatonic Minor":[0,3,5,7,10],
+  "Blues":[0,3,5,6,7,10]
+};
+const midiLog = document.getElementById('log');
+const inSel = document.getElementById('inSel');
+const outSel = document.getElementById('outSel');
+const thru = document.getElementById('thru');
+const btnRescan = document.getElementById('btnRescan');
+const btnPanic = document.getElementById('btnPanic');
+const ruleVel = document.getElementById('ruleVel');
+const ruleLow = document.getElementById('ruleLow');
+const ruleHigh = document.getElementById('ruleHigh');
+
+function addLine(s){ const ts=new Date().toLocaleTimeString(); midiLog.insertAdjacentHTML('afterbegin', `<div>[${ts}] ${s}</div>`); while(midiLog.children.length>200)midiLog.removeChild(midiLog.lastChild); }
+function toast(el,msg,ok=true){ el.textContent=msg; el.style.display='inline-block'; el.style.background=ok?'#1f6f43':'#7a2b2b'; setTimeout(()=>el.style.display='none',1600); }
+const dbToGain = db=>Math.pow(10, db/20);
+
+// ====== MIDI IO 基礎 ======
+let access, inPort=null, outPort=null, ctx = new (window.AudioContext||window.webkitAudioContext)();
+
+async function scan(){
+  if(!access) access = await navigator.requestMIDIAccess({sysex:false});
+  inSel.innerHTML=''; outSel.innerHTML='';
+  for(const i of access.inputs.values()){ const o=document.createElement('option'); o.value=i.id; o.textContent=i.name; inSel.appendChild(o); }
+  for(const o of access.outputs.values()){ const e=document.createElement('option'); e.value=o.id; e.textContent=o.name; outSel.appendChild(e); }
+  bindSel(); addLine('裝置已掃描');
+}
+function bindSel(){
+  if(inPort) inPort.onmidimessage=null;
+  inPort = access.inputs.get(inSel.value)||null; outPort = access.outputs.get(outSel.value)||null;
+  if(inPort) inPort.onmidimessage = onMidi;
+  addLine(`Input=${inPort?.name||'無'} | Output=${outPort?.name||'無'}`);
+}
+btnRescan.addEventListener('click', scan);
+inSel.addEventListener('change', bindSel);
+outSel.addEventListener('change', bindSel);
+btnPanic.addEventListener('click', ()=>{ if(!outPort) return; for(let ch=0; ch<16; ch++){ for(let n=0;n<128;n++) outPort.send([0x80|ch,n,0]); outPort.send([0xB0|ch,123,0]); } addLine('Panic sent'); });
+
+// ====== A/B Layer 狀態 ======
+const layers = {
+  A: { key:'C', scale:'Major', enabled:true, mode:'retune', pbRange:{retune:2,mpe:48}, tuning:null },
+  B: { key:'C', scale:'Major', enabled:true, mode:'retune', pbRange:{retune:2,mpe:48}, tuning:null }
+};
+let rules = { velGate:96, lowSplit:52, highSplit:60 };
+
+// 控制元件抓取
+const A = {
+  key:document.getElementById('A_key'),
+  scale:document.getElementById('A_scale'),
+  enabled:document.getElementById('A_enabled'),
+  mode:document.getElementById('A_mode'),
+  pbRet:document.getElementById('A_pbRet'),
+  pbMpe:document.getElementById('A_pbMpe'),
+  btnScl:document.getElementById('A_btnScl'),
+  btnKbm:document.getElementById('A_btnKbm'),
+  btnSave:document.getElementById('A_btnSaveTuning'),
+  apply:document.getElementById('A_apply'),
+  toast:document.getElementById('A_toast'),
+  fScl:document.getElementById('A_scl'),
+  fKbm:document.getElementById('A_kbm')
+};
+const B = {
+  key:document.getElementById('B_key'),
+  scale:document.getElementById('B_scale'),
+  enabled:document.getElementById('B_enabled'),
+  mode:document.getElementById('B_mode'),
+  pbRet:document.getElementById('B_pbRet'),
+  pbMpe:document.getElementById('B_pbMpe'),
+  btnScl:document.getElementById('B_btnScl'),
+  btnKbm:document.getElementById('B_btnKbm'),
+  btnSave:document.getElementById('B_btnSaveTuning'),
+  apply:document.getElementById('B_apply'),
+  toast:document.getElementById('B_toast'),
+  fScl:document.getElementById('B_scl'),
+  fKbm:document.getElementById('B_kbm')
+};
+
+function uiToLayer(L, id){
+  layers[id].key = L.key.value; layers[id].scale = L.scale.value; layers[id].enabled = L.enabled.checked;
+  layers[id].mode = L.mode.value; layers[id].pbRange.retune = parseInt(L.pbRet.value||'2',10); layers[id].pbRange.mpe = parseInt(L.pbMpe.value||'48',10);
+}
+function layerToUI(L, s){
+  L.key.value = s.key; L.scale.value = s.scale; L.enabled.checked = !!s.enabled;
+  L.mode.value = s.mode; L.pbRet.value = s.pbRange?.retune ?? 2; L.pbMpe.value = s.pbRange?.mpe ?? 48;
+}
+function bindLayer(L, id){
+  L.apply.addEventListener('click', async ()=>{
+    uiToLayer(L, id);
+    await window.chordalift.scale.setLayer(id, { key: layers[id].key, scale: layers[id].scale, enabled: layers[id].enabled });
+    await window.chordalift.out.setLayer(id, layers[id].mode, layers[id].pbRange);
+    toast(L.toast, `已套用 ${id}：${layers[id].key} ${layers[id].scale} / ${layers[id].mode}`, true);
+  });
+  L.btnScl.addEventListener('click', ()=> L.fScl.click());
+  L.btnKbm.addEventListener('click', ()=> L.fKbm.click());
+  L.fScl.addEventListener('change', async ()=>{
+    const f=L.fScl.files[0]; if (!f) return;
+    const scl = await parseSCL(await f.text());
+    const mapped12 = mapTo12(scl.cents);
+    layers[id].tuning = { type:'cents', name:scl.name||f.name, baseKey: layers[id].key, pitches: scl.cents, map12:mapped12 };
+    await window.chordalift.scale.putLayerTuning(id, layers[id].tuning);
+    toast(L.toast, `.scl 已載入（${scl.name||f.name}）`, true);
+  });
+  L.fKbm.addEventListener('change', async ()=>{
+    const f=L.fKbm.files[0]; if (!f) return;
+    const kbm = await parseKBM(await f.text());
+    if (layers[id].tuning) layers[id].tuning.kbm = kbm;
+    await window.chordalift.scale.putLayerTuning(id, layers[id].tuning);
+    toast(L.toast, `.kbm 已載入`, true);
+  });
+  L.btnSave.addEventListener('click', ()=>{
+    const obj = layers[id].tuning || { type:'pcset', name:`${layers[id].scale}`, baseKey: layers[id].key, pitches: SCALES[layers[id].scale]||SCALES.Major };
+    const blob = new Blob([JSON.stringify(obj,null,2)], {type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download = `${obj.name||'Scale'}.${id}.json`; a.click(); URL.revokeObjectURL(a.href);
+  });
+}
+bindLayer(A,'A'); bindLayer(B,'B');
+
+document.getElementById('rules_apply').addEventListener('click', async ()=>{
+  rules = { velGate: parseInt(ruleVel.value||'96',10), lowSplit: parseInt(ruleLow.value||'52',10), highSplit: parseInt(ruleHigh.value||'60',10) };
+  await window.chordalift.scale.setRules(rules);
+  addLine(`規則已套用 vel>=${rules.velGate} Melody；<=${rules.lowSplit} Bass；>=${rules.highSplit} Melody`);
+});
+
+// 載入保存的狀態
+(async ()=>{
+  try{
+    const all = await window.chordalift.scale.getAll();
+    if (all?.layerA) { layers.A = { ...layers.A, ...all.layerA }; layerToUI(A, layers.A); }
+    if (all?.layerB) { layers.B = { ...layers.B, ...all.layerB }; layerToUI(B, layers.B); }
+    if (all?.rules)  { rules = { ...rules, ...all.rules }; ruleVel.value=rules.velGate; ruleLow.value=rules.lowSplit; ruleHigh.value=rules.highSplit; }
+  }catch{}
+})();
+window.chordalift.scale.onApplied(({layer,state})=>{
+  layers[layer] = { ...layers[layer], ...state };
+  layerToUI(layer==='A'?A:B, layers[layer]);
+  addLine(`套用成功：Layer ${layer} → ${state.key} ${state.scale}`);
+});
+window.chordalift.out.onUpdated(({layer,mode,pbRange})=>{
+  layers[layer].mode = mode; layers[layer].pbRange = pbRange;
+  layerToUI(layer==='A'?A:B, layers[layer]);
+  addLine(`輸出更新：Layer ${layer} → ${mode} [±${pbRange.retune}/${pbRange.mpe}]`);
+});
+window.chordalift.state.onReset(s=>{
+  layers.A = s.layerA; layers.B = s.layerB; rules = s.rules;
+  layerToUI(A,layers.A); layerToUI(B,layers.B);
+  ruleVel.value=rules.velGate; ruleLow.value=rules.lowSplit; ruleHigh.value=rules.highSplit;
+  addLine('已重置為出廠預設');
+});
+
+// ====== SCL/KBM Parser（簡化） ======
+function parseSCL(txt){
+  const lines = txt.split(/\r?\n/).map(l=>l.trim()).filter(l=>l && !l.startsWith('!'));
+  const name = lines[0] || 'SCL';
+  let count = parseInt(lines[1],10); if (!Number.isFinite(count)) count = undefined;
+  const cents = [];
+  for (let i=2;i<lines.length;i++){
+    const t = lines[i].split(/\s+/)[0];
+    if (!t) continue;
+    if (t.includes('.')) cents.push(parseFloat(t)); // "xxx.xx"
+    else if (/^\d+\/\d+$/.test(t)){ // ratio → cents
+      const [a,b]=t.split('/').map(Number); cents.push(1200*Math.log2(a/b));
+    } else if (/^\d+$/.test(t)){ cents.push(1200*Number(t)); } // steps of octave (rare)
+  }
+  return { name, cents };
+}
+function parseKBM(txt){
+  const lines = txt.split(/\r?\n/).map(l=>l.trim()).filter(l=>l && !l.startsWith('!'));
+  // 簡化：拿第 1 欄當作基準音鍵位（可能是 69= A4）
+  const nums = lines.map(Number).filter(n=>Number.isFinite(n));
+  const root = nums[0] ?? 69;
+  return { root };
+}
+function mapTo12(cents){
+  // 把任意長度的 cents 陣列，近似映射為 12 級（0..11）
+  if (!cents || cents.length===0) return new Array(12).fill(0);
+  const m = [];
+  for (let k=0;k<12;k++){
+    const idx = Math.round((k/(12-1))*(cents.length-1));
+    m.push(cents[idx]);
+  }
+  return m;
+}
+
+// ====== 音階量化 + 微分音 ======
+function quantizeToScale(n, layer){
+  if (!layer.enabled) return { midi:n, cents:0 };
+  const keyPc = KEY2PC[layer.key] ?? 0;
+  const set = SCALES[layer.scale] || SCALES.Major;
+  const allowed = set.map(d => (d + keyPc) % 12);
+  const pc = n % 12;
+  if (allowed.includes(pc)) return { midi:n, cents:getCents(pc, layer) };
+  // 最近允許音（偏好上行）
+  let best=allowed[0], bestDist=12;
+  for (const a of allowed){
+    const d = Math.min((pc-a+12)%12,(a-pc+12)%12);
+    if (d<bestDist){bestDist=d; best=a;}
+  }
+  const up = (best-pc+12)%12; const down=(pc-best+12)%12; const delta=(up<=down)?up:-down;
+  const mm = Math.max(0, Math.min(127, n+delta));
+  const targetPc = (pc+delta+12)%12;
+  return { midi:mm, cents:getCents(targetPc, layer) };
+}
+function getCents(pc, layer){
+  // 若有 SCL 映射則用；否則 0
+  const m = layer.tuning?.map12;
+  if (!m) return 0;
+  const val = m[pc] ?? 0;
+  return Number.isFinite(val) ? val : 0;
+}
+function pb14FromCents(cents, range){
+  // 14-bit PB，中心 8192
+  const semis = cents / 100;
+  const v = Math.round(8192 + (semis / (range||2)) * 8192);
+  return Math.max(0, Math.min(16383, v));
+}
+
+// 簡易 MPE 通道池（Master=1，voices=2..15）
+const MPE = {
+  next:2, max:15,
+  alloc(){ const ch=this.next; this.next = (this.next>=this.max)?2:(this.next+1); return ch; }
+};
+
+// ====== 分派規則 ======
+function decideLayer(n, vel){
+  if (vel>=rules.velGate) return 'A'; // Melody → A（預設）
+  if (n<=rules.lowSplit) return 'B';  // 低音 → B
+  if (n>=rules.highSplit) return 'A'; // 高音 → A
+  return 'B'; // 其餘 → B（當作 Chord/Bass 混合）
+}
+
+// ====== MIDI 處理 ======
+function onMidi(ev){
+  const [s,d1,d2]=ev.data; const type=s&0xF0; const ch=s&0x0F;
+  if (type===0x90 && d2>0){
+    const target = decideLayer(d1, d2);
+    const L = layers[target];
+    let q = quantizeToScale(d1, L); // {midi,cents}
+    addLine(`NoteOn ${target} n=${d1}->${q.midi} ${q.cents?`(${q.cents.toFixed(1)}¢)`:''} v=${d2}`);
+    if (!thru.checked || !outPort) return;
+    if (L.mode==='retune'){
+      const bend = pb14FromCents(q.cents, L.pbRange.retune);
+      outPort.send([0xE0|ch, bend & 0x7F, (bend>>7)&0x7F]); // PB on same channel
+      outPort.send([0x90|ch, q.midi, d2]);
+    } else { // MPE
+      const vch = MPE.alloc();
+      const bend = pb14FromCents(q.cents, L.pbRange.mpe);
+      outPort.send([0xE0|vch, bend & 0x7F, (bend>>7)&0x7F]);
+      outPort.send([0x90|vch, q.midi, d2]);
+    }
+  } else if (type===0x80 || (type===0x90 && d2===0)){
+    const target = decideLayer(d1, d2);
+    const L = layers[target];
+    let q = quantizeToScale(d1, L);
+    addLine(`NoteOff ${target} n=${d1}->${q.midi}`);
+    if (!thru.checked || !outPort) return;
+    if (L.mode==='retune'){
+      outPort.send([0x80|ch, q.midi, 0]);
+    } else {
+      // 在簡化版中用上一個 voice 通道；正式版應追蹤 note->channel 對應
+      const vch = MPE.alloc();
+      outPort.send([0x80|vch, q.midi, 0]);
+    }
+  } else if (type===0xE0){ addLine(`PB ch=${ch+1}`); if(thru.checked && outPort) outPort.send(ev.data);
+  } else if (type===0xC0){ addLine(`Program ch=${ch+1} p=${d1}`); if(thru.checked && outPort) outPort.send(ev.data);
+  } else { if(thru.checked && outPort) outPort.send(ev.data); }
+}
+
+// ====== 維護工具 ======
+document.getElementById('btnOpenLog').addEventListener('click', ()=> window.chordalift.log.openDir());
+document.getElementById('btnTruncLog').addEventListener('click', async ()=>{ await window.chordalift.maintenance.clear({logs:true,cache:false}); addLine('日誌已清空');});
+document.getElementById('btnClearCache').addEventListener('click', async ()=>{ await window.chordalift.maintenance.clear({cache:true}); addLine('快取已清除');});
+document.getElementById('btnFactoryReset').addEventListener('click', async ()=>{
+  if (!confirm('確定要重置至出廠預設嗎？此動作會清除設定與快取（不影響你匯出的檔案）。')) return;
+  const r = await window.chordalift.maintenance.factoryReset();
+  addLine(r?.ok?'已重置為出廠預設':'重置失敗');
+});
+
+// 啟動
+navigator.requestMIDIAccess ? scan() : alert('此平台不支援 Web MIDI');
+</script>
+</body>
+</html>

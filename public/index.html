@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Chordalift｜社群計畫</title>
+  <meta name="description" content="Chordalift – 支援 Chorda 玩家社群的免費工具與下載站"/>
+  <meta name="theme-color" content="#3a70ba"/>
+
+  <link rel="icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+
+  <style>
+    :root{
+      --bg:#0b1020; --surface:#121a33; --ink:#e1e2e2; --muted:#a4a4a4;
+      --brand:#3a70ba; --brand-d:#365d91; --brand-l:#8badd6; --line:#273157;
+      --ok:#58d68d; --warn:#f5b041;
+    }
+    html,body{
+      margin:0; padding:0; background:var(--bg); color:var(--ink);
+      font-family: SimHei,"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    .wrap{max-width:1000px; margin:0 auto; padding:32px 20px;}
+    .hero{display:flex; gap:24px; align-items:center; flex-wrap:wrap;}
+    .logo{max-width:420px; height:auto; display:block}
+    .title{margin:0; font-size:28px; font-family:"Courier New", Courier, monospace;}
+    .tag{margin:6px 0 0; color:var(--muted)}
+    .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-top:18px}
+    .card{ background:var(--surface); border:1px solid var(--line);
+      border-radius:16px; padding:20px; }
+    .col-6{grid-column:span 6} .col-12{grid-column:span 12}
+    @media (max-width:900px){ .col-6{grid-column:span 12} }
+
+    .btn{display:inline-block; padding:10px 14px; border-radius:12px;
+      background:var(--brand); color:#fff; text-decoration:none; border:1px solid var(--brand-d)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{background:transparent; color:var(--ink)}
+    .btn-row{display:flex; gap:10px; flex-wrap:wrap}
+    .hint{color:var(--muted); font-size:12px}
+    h2,h3{margin:0 0 12px 0; font-family:"Courier New", Courier, monospace;}
+    ul{margin:8px 0 0 18px}
+    .kpis{display:flex; gap:16px; flex-wrap:wrap}
+    .kpi{background:#0f1630; border:1px solid #1e2a52; border-radius:12px; padding:10px 12px; font-size:13px}
+    .list{list-style:none; padding:0; margin:0}
+    .list li{display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px dashed #233056}
+    .asset-name{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .badge{display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--brand-l); color:var(--brand-l)}
+    footer{margin-top:28px; color:var(--muted); font-size:12px}
+    code{background:#0f1630; padding:2px 6px; border-radius:6px; border:1px solid #1e2a52}
+    pre{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <picture>
+        <source srcset="fixed-chordalift-logo.svg" type="image/svg+xml">
+        <img class="logo" src="chordalift-logo-1600.png" alt="Chordalift Logo">
+      </picture>
+      <div>
+        <h1 class="title">Chordalift</h1>
+        <p class="tag">
+          釋放您的聲音：深入音樂創新！<br>
+          <small>Unleash Your Sound: Dive Deeper into Musical Innovation!</small>
+        </p>
+        <div class="kpis" style="margin-top:10px">
+          <div class="kpi">Windows 10/11（x64）</div>
+          <div class="kpi">License：自定 EULA</div>
+          <div class="kpi">Support：hedro5493@gmail.com</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h2>下載 Download</h2>
+      <div class="btn-row" style="margin:8px 0 6px 0">
+        <a class="btn" href="https://github.com/pijiawei03281/chordalift/releases/latest">⬇ 取得最新版本（Releases）</a>
+        <a class="btn secondary" href="https://github.com/pijiawei03281/chordalift">原始碼 Repo</a>
+      </div>
+      <div class="hint">附 <code>SHA256SUMS.txt</code> 可校驗完整性。若 Windows 出現 SmartScreen，請點「更多資訊 → 仍要執行」。</div>
+    </div>
+
+    <div class="grid">
+      <section class="card col-6">
+        <h3>最新版本摘要 <span id="rel-tag" class="badge">loading…</span></h3>
+        <ul id="assets" class="list"></ul>
+        <div class="hint" id="rel-hint"></div>
+      </section>
+
+      <section class="card col-6">
+        <h3>使用指南（PDF）</h3>
+        <ul id="guides" class="list"></ul>
+        <div class="hint">若清單為空，請至 Releases 下載。</div>
+      </section>
+
+      <section class="card col-12">
+        <h3>常見問題（FAQ）</h3>
+        <ul>
+          <li>為什麼做這個？— 支援 Chorda 玩家，補齊官方 App 缺位。</li>
+          <li>需要付費嗎？— 不用，完全免費。</li>
+          <li>安全性？— 提供 <code>SHA256SUMS.txt</code>，可在 PowerShell 用 <code>Get-FileHash</code> 驗證。</li>
+        </ul>
+      </section>
+
+      <section class="card col-12" id="eula">
+        <h3>最終用戶授權協議（EULA）</h3>
+        <div class="btn-row" style="margin:8px 0 12px 0">
+          <a class="btn secondary" href="EULA.txt" target="_blank" rel="noopener">線上閱讀</a>
+          <a class="btn secondary" href="EULA.txt" download>下載 EULA.txt</a>
+        </div>
+        <pre id="eula-preview" style="max-height:240px;overflow:auto;background:#0f1630;border:1px solid #1e2a52;padding:10px;border-radius:12px;white-space:pre-wrap">載入中…</pre>
+        <div class="hint">此文件為社群專案之自定 EULA。此內容僅供一般資訊，非法律意見。</div>
+      </section>
+
+      <section class="card col-6">
+        <h3>Key / Scale 即時套用</h3>
+        <select id="sel-key">
+          <option>C</option><option>C#</option><option>D</option><option>D#</option>
+          <option>E</option><option>F</option><option>F#</option><option>G</option>
+          <option>G#</option><option>A</option><option>A#</option><option>B</option>
+        </select>
+        <select id="sel-scale">
+          <option>Major</option><option>Minor</option><option>Dorian</option><option>Phrygian</option>
+        </select>
+        <button id="btn-apply" class="btn">套用</button>
+        <span id="toast" style="display:none;margin-left:8px;padding:4px 8px;border-radius:6px;">&nbsp;</span>
+      </section>
+
+      <section class="card col-6">
+        <h3>MIDI 監視器 & 測試音</h3>
+        <div class="btn-row" style="margin-bottom:8px">
+          <button class="btn secondary" data-wave="sine">Sine</button>
+          <button class="btn secondary" data-wave="triangle">Triangle</button>
+          <button class="btn secondary" data-wave="square">Square</button>
+          <button class="btn secondary" data-wave="sawtooth">Saw</button>
+        </div>
+        <ul id="midi-list" class="list"></ul>
+      </section>
+    </div>
+
+    <footer>
+      本專案為社群維護，非 Artiphon/Chorda 官方；以「現況」提供，使用風險自負。 | 
+      © <span id="year"></span> Chordalift 社群計畫
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const owner = "pijiawei03281";
+      const repo  = "chordalift";
+      const assetsEl = document.getElementById("assets");
+      const guidesEl = document.getElementById("guides");
+      const tagEl    = document.getElementById("rel-tag");
+      const hintEl   = document.getElementById("rel-hint");
+      const yearEl   = document.getElementById("year");
+      yearEl.textContent = new Date().getFullYear();
+
+      function fmtBytes(n){
+        if(!Number.isFinite(n)) return "";
+        const u=["B","KB","MB","GB"]; let i=0;
+        while(n>=1024 && i<u.length-1){ n/=1024; i++; }
+        return n.toFixed(n<10 && i>0 ? 1 : 0) + " " + u[i];
+      }
+      function icon(name){
+        const n=name.toLowerCase();
+        if(n.endsWith(".exe")) return "🪟";
+        if(n.endsWith(".pdf")) return "📄";
+        if(n.endsWith(".txt")) return "🔒";
+        if(n.endsWith(".zip")) return "🗜️";
+        return "📦";
+      }
+
+      fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`)
+        .then(r=>r.json())
+        .then(data=>{
+          if(!data || !data.tag_name){ throw new Error("no release"); }
+          tagEl.textContent = data.tag_name;
+          hintEl.textContent = (data.published_at ? ("Published: " + new Date(data.published_at).toLocaleString()) : "");
+
+          const assets = Array.isArray(data.assets) ? data.assets : [];
+          const exeAssets = assets.filter(a => /\.exe$/i.test(a.name));
+          const sumAssets = assets.filter(a => /sha256sums\.txt$/i.test(a.name));
+          const pdfAssets = assets.filter(a => /\.pdf$/i.test(a.name));
+
+          assetsEl.innerHTML = (exeAssets.concat(sumAssets)).map(a => `
+            <li>
+              <span class="asset-name">${icon(a.name)} ${a.name}</span>
+              <a class="btn secondary" href="${a.browser_download_url}">下載（${fmtBytes(a.size)}）</a>
+            </li>
+          `).join("") || `<li><span class="asset-name">暫無資產</span></li>`;
+
+          guidesEl.innerHTML = pdfAssets.map(a => `
+            <li>
+              <span class="asset-name">📄 ${a.name}</span>
+              <a class="btn secondary" href="${a.browser_download_url}">下載（${fmtBytes(a.size)}）</a>
+            </li>
+          `).join("") || `<li><span class="asset-name">尚未上傳指南 PDF</span></li>`;
+
+          // Windows 快速下載（portable.exe）
+          const a = assets.find(x => /\.portable\.exe$/i.test(x.name));
+          if (a) {
+            const card = document.querySelector('.card h2')?.parentElement;
+            if (card) {
+              const btn = document.createElement('a');
+              btn.className = 'btn';
+              btn.href = a.browser_download_url;
+              btn.textContent = '⚡ 一鍵下載（Windows Portable）';
+              btn.style.marginLeft = '8px';
+              card.querySelector('.btn-row')?.appendChild(btn);
+            }
+          }
+        })
+        .catch(()=>{
+          tagEl.textContent = "無法取得";
+          assetsEl.innerHTML = `
+            <li><span class="asset-name">API 受限或尚無 Releases</span>
+            <a class="btn secondary" href="https://github.com/${owner}/${repo}/releases/latest">前往 Releases</a></li>`;
+        });
+    })();
+  </script>
+
+  <script type="module">
+    import { bindApply } from './js/apply.js';
+    import { initMIDI } from './js/midi.js';
+    import { eulaGate } from './js/eula-gate.js';
+
+    eulaGate({ modalSel:'#eula', chkSel:'#eula-chk', openSel:'#eula-open', okSel:'#eula-ok' }); // ids inside eula section
+    bindApply({ keySel:'#sel-key', scaleSel:'#sel-scale', applyBtn:'#btn-apply', toast:'#toast' });
+    initMIDI({ listSel:'#midi-list', testBtns:'.btn.secondary', max:20, testDb:-6 }).catch(console.error);
+  </script>
+</body>
+</html>
