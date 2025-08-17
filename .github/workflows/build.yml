@@ -24,10 +24,16 @@ jobs:
       - name: Make SHA256SUMS.txt
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path build_out | Out-Null
-          Get-ChildItem build_out\* -File | ForEach-Object {
-            (Get-FileHash $_.FullName -Algorithm SHA256).Hash + "  " + $_.Name
-          } | Out-File build_out\SHA256SUMS.txt -Encoding ascii
+         $tmp = Join-Path $env:RUNNER_TEMP 'SHA256SUMS.txt'
+         Remove-Item -Force $tmp -ErrorAction SilentlyContinue
+
+         Get-ChildItem build_out -File -Recurse |
+         Where-Object { $_.Name -ne 'SHA256SUMS.txt' } |
+         ForEach-Object {
+         (Get-FileHash $_.FullName -Algorithm SHA256).Hash + "  " + $_.Name
+         } | Out-File $tmp -Encoding ascii
+
+         Move-Item -Force $tmp (Join-Path 'build_out' 'SHA256SUMS.txt')
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
